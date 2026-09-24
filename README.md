@@ -1,5 +1,9 @@
 # TyposquatWatch
 
+<img src="docs/assets/demo.svg" alt="typosquatwatch flagging expresss and lodahs as typosquats using real npm registry data" width="700" />
+
+<sub>Real terminal session against a real package.json - real npm registry lookups, not fixtures.</sub>
+
 A pre-install dependency supply-chain guard for npm and Python projects. It scans your
 `package.json`, `requirements.txt`, or `pyproject.toml` and flags dependencies that look
 like **typosquats** — or **"slopsquats"**, packages an AI coding agent hallucinated and an
