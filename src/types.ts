@@ -32,7 +32,7 @@ export interface RegistryEvidence {
   error?: string;
 }
 
-export type Verdict = "HIGH_RISK" | "MEDIUM_RISK" | "LOW_RISK" | "OK" | "UNKNOWN";
+export type Verdict = "HIGH_RISK" | "MEDIUM_RISK" | "LOW_RISK";
 
 export interface ScanFinding {
   dependency: ManifestDependency;

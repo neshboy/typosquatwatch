@@ -51,7 +51,7 @@ export function renderReport(result: ScanResult): string {
     return lines.join("\n");
   }
 
-  const byVerdict = { HIGH_RISK: 0, MEDIUM_RISK: 0, LOW_RISK: 0, OK: 0, UNKNOWN: 0 };
+  const byVerdict = { HIGH_RISK: 0, MEDIUM_RISK: 0, LOW_RISK: 0 };
   for (const f of result.findings) byVerdict[f.verdict]++;
 
   lines.push(

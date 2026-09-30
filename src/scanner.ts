@@ -6,7 +6,7 @@ import type {
   Verdict,
 } from "./types.js";
 import { findClosestMatches } from "./similarity.js";
-import { getPopularPackages, isKnownPopular } from "./popularPackages.js";
+import { getPopularPackages, isKnownPopular, normalizePyPIName } from "./popularPackages.js";
 import { getNpmEvidence, getPyPIEvidence } from "./registry.js";
 
 export interface ScoreWeights {
@@ -134,7 +134,13 @@ export async function evaluateDependency(
   }
 
   const popularNames = getPopularPackages(dep.ecosystem);
-  const matches = findClosestMatches(dep.name, popularNames, { limit: 1 });
+  // PyPI treats -, _, . as interchangeable (PEP 503), so compare normalized forms on both
+  // sides here too — otherwise a spelling-variant-only name (e.g. "typing_extensions" vs.
+  // the seed list's "typing-extensions") gets scored as a near-typosquat of itself.
+  const candidateName = dep.ecosystem === "pypi" ? normalizePyPIName(dep.name) : dep.name;
+  const comparisonPopularNames =
+    dep.ecosystem === "pypi" ? popularNames.map(normalizePyPIName) : popularNames;
+  const matches = findClosestMatches(candidateName, comparisonPopularNames, { limit: 1 });
   if (matches.length === 0) {
     return null;
   }
