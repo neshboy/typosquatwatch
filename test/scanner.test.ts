@@ -96,6 +96,33 @@ describe("evaluateDependency (offline, no network)", () => {
     expect(finding!.bestMatch?.popularName).toBe("chalk");
     expect(finding!.evidence).toBeNull();
   });
+
+  it("does not flag pypi names that only differ from a popular package by PEP 503 separator style", async () => {
+    // typing_extensions/python_dateutil/scikit_learn are the real, long-established PyPI
+    // packages, just spelled with underscores instead of the seed list's hyphens — PyPI
+    // itself treats those spellings as identical, so this must not be treated as a typosquat.
+    for (const name of ["typing_extensions", "python_dateutil", "scikit_learn"]) {
+      const dep: ManifestDependency = {
+        name,
+        versionRange: "*",
+        ecosystem: "pypi",
+        section: "dependencies",
+      };
+      expect(await evaluateDependency(dep, { offline: true })).toBeNull();
+    }
+  });
+
+  it("still flags a genuine pypi typosquat even though separator normalization is applied", async () => {
+    const dep: ManifestDependency = {
+      name: "reqeusts",
+      versionRange: "*",
+      ecosystem: "pypi",
+      section: "dependencies",
+    };
+    const finding = await evaluateDependency(dep, { offline: true });
+    expect(finding).not.toBeNull();
+    expect(finding!.bestMatch?.popularName).toBe("requests");
+  });
 });
 
 describe("evaluateDependencies with injected fetchEvidence (no real network)", () => {

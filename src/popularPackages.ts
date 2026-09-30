@@ -38,11 +38,22 @@ export function getPopularPackages(ecosystem: Ecosystem): string[] {
   return ecosystem === "npm" ? getPopularNpmPackages() : getPopularPyPIPackages();
 }
 
+/**
+ * PEP 503 name normalization: lowercase, then collapse any run of `-`, `_`, `.` into a
+ * single `-`. PyPI treats e.g. "typing_extensions", "typing.extensions", and
+ * "typing-extensions" as the exact same package, so comparisons against the PyPI seed
+ * list must normalize both sides this way or spelling-variant-only names get misjudged
+ * as typosquats of themselves.
+ */
+export function normalizePyPIName(name: string): string {
+  return name.toLowerCase().replace(/[-_.]+/g, "-");
+}
+
 export function isKnownPopular(name: string, ecosystem: Ecosystem): boolean {
   if (ecosystem === "npm") {
     if (!npmSetCache) npmSetCache = new Set(getPopularNpmPackages());
     return npmSetCache.has(name);
   }
-  if (!pypiSetCache) pypiSetCache = new Set(getPopularPyPIPackages());
-  return pypiSetCache.has(name.toLowerCase());
+  if (!pypiSetCache) pypiSetCache = new Set(getPopularPyPIPackages().map(normalizePyPIName));
+  return pypiSetCache.has(normalizePyPIName(name));
 }
